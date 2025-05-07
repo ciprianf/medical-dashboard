@@ -1,28 +1,62 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import './App.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
+// Mock data (replace with API fetch if applicable)
 const mockData = [
-  { test: 'Total Cholesterol', value: 180, unit: 'mg/dL', range: '<200', status: 'Normal' },
-  { test: 'Blood Glucose', value: 90, unit: 'mg/dL', range: '70-99', status: 'Normal' },
+  { id: 1, test_name: 'Total Cholesterol', value: 180, unit: 'mg/dL', range_reference: '<200', status: 'Normal' },
+  { id: 2, test_name: 'Blood Glucose', value: 90, unit: 'mg/dL', range_reference: '70-99', status: 'Normal' },
 ];
 
-const chartData = {
-  labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-  datasets: [
-    {
-      label: 'Cholesterol (mg/dL)',
-      data: [190, 185, 182, 180, 178],
-      borderColor: 'rgba(75, 192, 192, 1)',
-      fill: false,
-    },
-  ],
-};
-
 function App() {
+  const [bloodTests, setBloodTests] = useState(mockData);
+  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
+
+  useEffect(() => {
+    // Simulate API fetch or use mock data
+    setBloodTests(mockData);
+
+    // Prepare chart data (example: cholesterol over time)
+    const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
+    const values = [190, 185, 182, 180, 178]; // Mock cholesterol values
+    setChartData({
+      labels,
+      datasets: [
+        {
+          label: 'Cholesterol (mg/dL)',
+          data: values,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          fill: false,
+        },
+      ],
+    });
+
+    // If using an API, uncomment and configure:
+    /*
+    axios.get('https://your-api-endpoint.com/blood-tests/')
+      .then(response => {
+        setBloodTests(response.data);
+        const labels = response.data.map(test => test.created_at);
+        const values = response.data
+          .filter(test => test.test_name === 'Total Cholesterol')
+          .map(test => test.value);
+        setChartData({
+          labels: labels.slice(-5),
+          datasets: [{
+            label: 'Cholesterol (mg/dL)',
+            data: values.slice(-5),
+            borderColor: 'rgba(75, 192, 192, 1)',
+            fill: false,
+          }],
+        });
+      })
+      .catch(error => console.error('Error fetching data:', error));
+    */
+  }, []);
+
   return (
     <div className="container">
       <header>
@@ -31,12 +65,12 @@ function App() {
       <main>
         <h2>Latest Test Results</h2>
         <div className="results">
-          {mockData.map((item, index) => (
-            <div key={index} className="result-card">
-              <h3>{item.test}</h3>
-              <p>Value: {item.value} {item.unit}</p>
-              <p>Range: {item.range}</p>
-              <p>Status: {item.status}</p>
+          {bloodTests.map(test => (
+            <div key={test.id} className="result-card">
+              <h3>{test.test_name}</h3>
+              <p>Value: {test.value} {test.unit}</p>
+              <p>Range: {test.range_reference}</p>
+              <p>Status: {test.status}</p>
             </div>
           ))}
         </div>
